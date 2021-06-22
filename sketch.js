@@ -7,42 +7,72 @@ let h = 60;
 
 let stage = 0;
 
+let rays;
 //----여기에 room1,3,4에 대한 변수 설정값을 넣었었는데, 충돌일어나서 없애논 상태암 
 //---마우스클릭해서 넘어가지 않고, 특정 지점에 마우스를 갖다대면 저절로 넘어가게 작동되고 있음
 //---
 
+//---3번방
+let stretchy;
+let face;
+let tear;
+let a = [];
+let b = [];
+
+//--4번방
+let direction;
+
+function preload() {
+  face = loadImage('eye.png');
+}
+
 function setup() {
   createCanvas(800, 800);
-  strokeWeight(7);
+  strokeWeight(5);
 
+//chara 
   chara = createSprite(400, 150, 50, 100);
   let myAnimation = chara.addAnimation('floating', 'standing1.png', 'standing2.png', 'standing3.png');
   myAnimation.offY = 18;
   chara.addAnimation('moving', 'leftwalk.png');
   chara.position.a = width / 2;
   chara.position.b = height / 2;
+
+  rays = new Group();
+
+//ghost
+  for (let i = 0; i < 300; i++) {
+    a[i] = random(800, 0);
+    b[i] = random(1000, 100);
+  }
+
+
+  stretchy = createSprite(400, 200, 10, 10);
+
 }
 
 function draw() {
 
   if (stage == 0) {
-  //--passage space--
+    //--passage space--
     console.log(chara.position.x, chara.position.y); //326, 400
-
+    rectMode(CORNER);
     background(200);
     fill(20, 20, 100);
     line(0, 600, 1200, 600);
 
     fill(150, 20, 20);
-    rect(200, 300, 150, 300, 10);
-    fill(20, 50, 150);
-    rect(400, 300, 150, 300, 10);
-    // line(200,550,400,550);
+    rect(200, 300, 150, 300, 10); //350
+    
     fill(10);
+    rect(400, 300, 150, 300, 10); //550
+    // line(200,550,400,550);
+    
+    fill(20, 50, 150);
     rect(600, 300, 150, 300, 10);
-  
 
-//--chara animation--
+
+    //--chara animation--
     if (mouseX < chara.position.x - 10) {
       chara.changeAnimation('moving');
       //flip horizontally
@@ -75,16 +105,15 @@ function draw() {
       chara.velocity.y = 0;
     }
 
-    if (chara.position.x < 200)
-      chara.position.x = 200;
+    if (chara.position.x < 50)
+      chara.position.x = 50;
     if (chara.position.y < 400)
       chara.position.y = 400;
-    if (chara.position.x > width - 200)
-      chara.position.x = width - 200;
+    if (chara.position.x > width - 50)
+      chara.position.x = width - 50;
     if (chara.position.y > height - 200)
       chara.position.y = height - 200;
 
-    drawSprites();
 
     //--next stage click--
     console.log(dist(chara.position.x, chara.position.y, 300, 400));
@@ -92,23 +121,37 @@ function draw() {
       console.log("가까이 갔는데 왜", stage);
       stage = 1;
     }
-  } else if (stage == 1) {
+    if (dist(chara.position.x, chara.position.y, 500, 400) < 30) {
+      console.log("가까이 갔는데 왜", stage);
+      stage = 3;
+    }
+    if (dist(chara.position.x, chara.position.y, 700, 400) < 30) {
+      console.log("가까이 갔는데 왜", stage);
+      stage = 4;
+    }
+
     
+    drawSprites();
+
+
+  
+
     //---------------------------------------room1-----------------------------------
-    
+  } else if (stage == 1) {
+    push();
     let GRAVITY = -0.2;
     rectMode(CENTER);
-    strokeWeight(7);  
+    strokeWeight(7);
     background(200);
     fill(20, 20, 100);
     line(0, 0, width, height);
     line(0, 800, 800, 0);
     fill(200);
     rect(400, 400, 500, 500, 10, 10);
-    fill(20, 50, 150);
-    rect(405, 405, 440, 440);
+    // fill(20, 50, 150);
+    // rect(405, 405, 440, 440);
 
-    
+
     //fish_draw
     fill(153);
 
@@ -145,26 +188,22 @@ function draw() {
 
     for (var i = 0; i < allSprites.length; i++) {
       var mySprite = allSprites[i];
-
+      // for (var i = 0; i < rays.length; i++) {
+      //     var mySprite = rays[i];
       //adding a speed at 90 degrees (down)
       //equivalent to: mySprite.velocity.y += GRAVITY;
       mySprite.addSpeed(GRAVITY, 90);
-
       //even if they are out of the canvas, sprites keep getting updated
       //consuming precious memory
       //use Sprite.remove() to remove a sprite from the sketch
       if (mySprite.position.y > height + 100)
         mySprite.remove();
     }
+    console.log(getSprites());
+    // if (frameCount % 10 == 0)
+    //   print('Sprite in the scene: ' + allSprites.length);
 
-    if (frameCount % 10 == 0)
-      print('Sprite in the scene: ' + allSprites.length);
 
-    //draw the sprites
-    drawSprites();
-    
-    
-   
 
     //--next stage--
     // fill(120);
@@ -177,70 +216,68 @@ function draw() {
     rect(x, y, w, h);
     // console.log(dist(chara.position.x, chara.position.y, 300, 50));
     // if (dist(chara.position.x, chara.position.y, 300, 50) < 30) {
-    //   console.log("가까이 갔는데 왜", stage);
-    //   stage = 0;    
+    if (chara.position.y + chara.height / 2 + 200 < 0) {
+      console.log("1에서 0으로", stage);
+      stage = 0;
+      //draw the sprites
+    }
+    drawSprites();
+    pop();
 
   } else if (stage == 2) {
-//--우선 작동안되서 빼놓음--------------
+    //--우선 작동안되서 빼놓음--------------
 
   } else if (stage == 3) {
-  //------------------------------room3-----------------------------------------------------
+    //------------------------------room3-----------------------------------------------------
     console.log(chara.position.x, chara.position.y);
-    let stretchy;
-    let face;
-    let tear;
-    let a = [];
-    let b = [];
-
+    
     background(0);
     stroke(255);
     line(450, 0, 450, 800);
-    triangle(900, 800, 450, 600, 20, 800,10);
-  
+    triangle(900, 800, 450, 600, 20, 800, 10);
+
     fill(0);
     textAlign(CENTER);
-    text('so sad', width/2, height-20);
+    text('so sad', width / 2, height - 20);
 
-    face = loadImage('eye.png');
-    push();
+    // push();
     fill(255);
-    for (let i = 0; i < 3000; i++) {
-        a[i] = random(800, 0);
-        b[i] = random(1000, 100);
-    
-      }
-    pop();
-    stretchy = createSprite(400, 200, 10, 10);
+    // for (let i = 0; i < 3000; i++) {
+    //   a[i] = random(800, 0);
+    //   b[i] = random(1000, 100);
+    // }
+    // pop();
 
-    stretchy.draw = function() {
+    //ghost
+    stretchy.draw = function () {
       fill(0);
-  
+
       push();
       rotate(radians(this.getDirection()));
-      ellipse(5, 5, 100+this.getSpeed(), 100-this.getSpeed());
+      ellipse(5, 5, 100 + this.getSpeed(), 100 - this.getSpeed());
       pop();
-  
-     
-      image(face, this.deltaX*2, this.deltaY*2);
+
+      image(face, this.deltaX * 2, this.deltaY * 2);
     };
-  
+
     stretchy.maxSpeed = 20;
-  
-    for(let i = 0; i < a. length; i++){
+
+    for (let i = 0; i < a.length; i++) {
       b[i] += random(5);
       // let b = i ;
-      if(b[i]> height){
-          b[i] = b[i]- height;
+      if (b[i] > height) {
+        b[i] = b[i] - height;
       }
-      
+
       rect(a[i], b[i], 0.5, 20);
     }
-  
+
     //mouse trailer, the speed is inversely proportional to the mouse distance
-    stretchy.velocity.a = (mouseX-stretchy.position.a)/5;
-    stretchy.velocity.b = (mouseY-stretchy.position.b)/10;
-  
-    drawSprites();
+    stretchy.velocity.x = (mouseX - stretchy.position.x) / 5;
+    stretchy.velocity.y = (mouseY - stretchy.position.y) / 10;
+    // stretchy.velocity.x = (char.position.x - stretchy.position.x) / 5;
+    // stretchy.velocity.y = (char.position.y - stretchy.position.y) / 5;
+
 
     //--next stage click--
     if (mouseX > x && mouseX < x + w && mouseY > y && mouseY < y + h) {
@@ -248,29 +285,43 @@ function draw() {
     } else {
       fill(50, 100, 150);
     }
+
+    rectMode(CENTER);
     rect(x, y, w, h);
-  //  -----------------------------여기 충돌일어남, room4도 마찬가지---------
-    // if (dist(chara.position.x, chara.position.y, 450, 430) < 30) {
-    //   console.log("가까이 갔는데 왜", stage);
-    //   stage = 3;
+  
+    drawSprites();
+
+    if (chara.position.y > height) {
+      console.log("3333", stage);
+
+      stage = 0;
+    }
 
   } else if (stage == 4) {
     //----------------------------------------room4--------------------------------
-    // var ghost;
-    // var direction = 90;
-
-          //create the sprites
-      ghost = createSprite(600, 200, 50, 100);
-      ghost.addAnimation('floating', 'blue1.png', 'blue2.png', 'blue3.png');
   
-      for(let y = 0; y <= height; y += 40){
-      for (let x = 0; x <= width; x += 40){
-      fill(random(100, 100, 250) , random(10,200,200) , random(150, 255, 255));
-      rect (x, y, 40,40);
-          } 
-        }
-
-
+    let ghost;
+    let direction = 90;
+    // frameRate(40);
+    rectMode(CENTER);
+    
+    push();
+    //create the sprites --------ghost가 마우스를 따라 움직이지 않음
+    ghost = createSprite(600, 200, 50, 100);
+    ghost.addAnimation('floating', 'blue1.png', 'blue2.png', 'blue3.png');
+    
+    for (let y = 0; y <= height; y += 40) {
+      for (let x = 0; x <= width; x += 40) {
+        fill(random(100, 100, 250), random(10, 200, 200), random(150, 255, 255));
+        rect(x, y, 40, 40);
+      }
+    }
+    
+    ghost.attractionPoint(0.2, mouseX, mouseY);
+    ghost.maxSpeed = 7;
+    pop();
+   
+    //space
     fill(20, 20, 100);
     line(0, 0, width, height);
     line(0, 800, 800, 0);
@@ -281,24 +332,24 @@ function draw() {
     rect(405, 405, 440, 440);
 
 
-    push();
-    ghost.attractionPoint(0.2, mouseX, mouseY);
-    ghost.maxSpeed = 7;
-    pop();
+    //--next stage click--
+    if (mouseX > x && mouseX < x + w && mouseY > y && mouseY < y + h) {
+      fill(50);
+    } else {
+      fill(50, 100, 150);
+    }
+    rect(x, y, w, h);
 
     drawSprites();
- 
-       //--next stage click--
-       if (mouseX > x && mouseX < x + w && mouseY > y && mouseY < y + h) {
-        fill(50);
-      } else {
-        fill(50, 100, 150);
-      }
-      rect(x, y, w, h);
-      // if (dist(chara.position.x, chara.position.y, 400, 700) < 30) {
-      //   console.log("가까이 갔는데 왜", stage);
-      //   stage = 4;
-}
+
+    if (chara.position.y > height) {
+      console.log("4444", stage);
+
+      stage = 0;
+    }
+
+    
+  }
 
 }
 
@@ -317,6 +368,7 @@ function mousePressed() {
     newSprite.animation.stop();
     var f = round(random(0, newSprite.animation.getLastFrame()));
     newSprite.animation.changeFrame(f);
+    rays.add(newSprite);
     pop();
 
 
@@ -364,8 +416,7 @@ function mousePressed() {
     drawSprites();
 
   } else if (stage == 3) {
-    
-  
+
     //---------chara animation-------------------
     if (mouseX < chara.position.x - 10) {
       chara.changeAnimation('moving');
@@ -383,7 +434,7 @@ function mousePressed() {
       chara.changeAnimation('floating');
       chara.velocity.x = 0;
     }
-  
+
     if (mouseY < chara.position.y - 10) {
       chara.changeAnimation('moving');
       //flip horizontally
@@ -398,17 +449,17 @@ function mousePressed() {
       chara.changeAnimation('floating');
       chara.velocity.y = 0;
     }
-  
+
     if (chara.position.x < 200)
       chara.position.x = 200;
     if (chara.position.y < 600)
       chara.position.y = 600;
-    if (chara.position.x > width-200)
-      chara.position.x = width-200;
-    if (chara.position.y > height-200)
-      chara.position.y = height-200;
-  
-    drawSprites();
+    if (chara.position.x > width - 200)
+      chara.position.x = width - 200;
+    if (chara.position.y > height - 200)
+      chara.position.y = height - 200;
+
+    // drawSprites();
 
   } else if (stage == 4) {
     if (mouseX < chara.position.x - 10) {
@@ -427,7 +478,7 @@ function mousePressed() {
       chara.changeAnimation('floating');
       chara.velocity.x = 0;
     }
-  
+
     if (mouseY < chara.position.y - 10) {
       chara.changeAnimation('moving');
       //flip horizontally
@@ -442,17 +493,17 @@ function mousePressed() {
       chara.changeAnimation('floating');
       chara.velocity.y = 0;
     }
-  
+
     if (chara.position.x < 200)
       chara.position.x = 200;
     if (chara.position.y < 500)
       chara.position.y = 500;
-    if (chara.position.x > width-200)
-      chara.position.x = width-200;
-    if (chara.position.y > height-200)
-      chara.position.y = height-200;
-  
+    if (chara.position.x > width - 200)
+      chara.position.x = width - 200;
+    if (chara.position.y > height - 200)
+      chara.position.y = height - 200;
+
     drawSprites();
   }
-  
+
 }
